@@ -63,42 +63,19 @@ node-rsa is a RSA library, based on jsbn library (https://www.npmjs.com/package/
 ```
 npm install node-rsa
 ```
-### run
-
-```
->node LtpaToken2.js
-FO0IhKxfn60qjKDgKFYy+VthWmVo/tNiwjynuhxajEZu1avBpBIdXF9tz8mNTFt+hp4VPuZsTMyrDlhOa3zWUup+Dhs8hFA+wDshMsW8tmmDgJXLdPD9iTgNTVmK/SFOl51AwEPJkTwpYXmWHyDHwlztPOXzamvLeX3ZTSr/b2aMraGxxsP5jlAMoDIge66FcCRR2IzP2mSmv6UiECtUXleip2DMH3Tqn/iGYDjYZKAB2Ym2Rki4HrElbGcK/cxPa7Z8guHjQ9AJYZacrpbdFNGy6H9sKdDokCxg1M7VYpMwi+2cJQ1yCog15RVASp075d9jlUhfGdkndkqWDHD2+gVFCwrtWKcd64VpSLJJcwc=
-expire:1595836888000$u:user\:defaultWIMFileBasedRealm/CN=Pieter Geerts,O=beibm%1595836888000%nHeiFBX5WsaC8r98LZ9dFyiv94Vk5ziGnUBhnO5YLKyiBm+RvMpKg3xMs6/OT60A59B6ritueQuYzHsdtPS3nbKjpocQxaqabD2cvju4jNcPxE4i/mXfdl4KTchSIplcwe2I/T4Bw4KwSWofSzXV2Vcy2Mxtgl49iGdAkpPt3Q4=
-```
-
 ## groovy
 no additional packages are required to run the code
-
-### run
-```
->groovy LtpaToken2.groovy
-+UrOhIR7+zM3gmKkm77OdDD/lNXV+dYX1JDeYxlpadHjoFnXAyX388Q39NEMlASuiyj3WcbqySAfAc0BxZ1n4Yn3CyOnoJWuU35W8PkzN4uJvcEdNNW78yZkhVwv/bJ3o/OBWYXuIgLLLhOsvIHitY4TtvUNSHa5HJdvrKwGj3T1IjvXI/xUqldopGSVnbDrA1oW/guBEiINXMtSQo6zE4Gz91LJLcTD67mLySsRI4GyqtaRHv3d8GpS49JAle+xKe7jqgXkzVsiB6hmjKQFe2i0UQNCqCfIQ8PRi9WQ5jqvXQmRWhgApBuzI+9TjGPdOiJooINLDU8hjh9ameQ8IsYYvtPZFywZiZiLMVKTmhA=
-expire:1595891331000$u:user\:defaultWIMFileBasedRealm/CN=Pieter Geerts,O=beibm%1595891331000%KZOQJYl26k5VmBM1vDspz9XYvbJ2jAL2vZ5Mu3kr6HF0+cOTnWr4YH/f5ugS73YQ7Qog1fw/6sO1is5b+sso2xE46fsS6hv0xCFsa6UsT5skUt2eyswo4a7HSd3RrZ0U5gMk+PfhiY7lbU5s5Nj95KIzkvS6P/8iygqlu9qvizY=
-```
 
 ## java
 no additional packages are required to run the code
 
-### run
-```
->java LtpaToken2.java
-URHP9qjph4fDLXatMiMxvFJ1wluHgBOAaroLRYKWART8xKDkUN89HJ3QiSuejEUKeMartZUbgI32pAUvpuP/5sPYOT9+P3mrWD4tSQkMeVNnsLO0+t3o6vpxTuhnGfPcuhwci2lsLsykeJyZflW5OOeTyNXyzSCEdINT2RWqfxuNGQ64lbEJXNfhIibZ0H29gsVa+EKKj5AqJxP6tk7E2Eud2WLPnrAqcX9uPdXxkwwy//9iwn/vpQofZ0mCICfZfukNA3JectXCckWFBAPSiAVT8rRQCkI2r/V7VX2vyRi1MBiqC6vCXzfDbGhfZGRXoEbSTp0IHh4c7QGyOXqQlrRuN8UpuH1osypew0ferRg=
-expire:1595938284000$u:user\:defaultWIMFileBasedRealm/CN=Pieter Geerts,O=beibm%1595938284000%VFmr8GRDjUX/urPumWSc7od2mdVhq8t/mCFVmj+7Dy0DlanBUV9yuLYgDYHVvy5Q9SpGjrQjT51hhNqR4FQZKm0KLJ7rCZYrHy2WPh2vQgM5QDsMUClEc2aGXUkfsFAu0b50crNAbGpv3tVcEhWV/GDbQwDrlRcjXuXbToLQ2RQ=
-```
-
-## python3
+## python
 pycrypto package seems to have issues with signature creation and validation but is also outdated(2013).pycryptodome seems to be working for signature validation, however the signature creation is still not working correctly hence a wrong LtpaToken2 creation. cryptography package seems to be working correctly for encryption&decryption and signature creation&validation
 ```
 pip install cryptography
 ```
 ### run
 ```
->python LtpaToken2.py
 eTuRcNLOkWDFe4a3hRQe26i1M7c4voxigCrK5WGw6Q1/754nGxIV4hS4euYtpKPe6yCxL+RqpELpSitoUR3Iq3pbDpss8SmjXgNtmUk77y6MvRRqD/sLP1QK5NM5UyvJkdCa6Y92Xx5pgp+u3rXM8x+f0zG9vOR5oMozWTtTE0H9sxiLDXqQfly+xWsamoTrhxUqwxGcTfWTf/oTJlQRtI9m4TVBDMGT8+dM/2KtrxiySCsVZiit1YkrImRFB+Z4TJLqFQhzabY2XfwAT9DgUleJst5PjwtaONLIuET/SLY28aqCgiXDFUFEXO8V2D9ijTtVm8hmtOxDJofn9fyQktLUivxcYMWxWb2PBSXIBJ4=
 expire:1596214193000$u:user\:defaultWIMFileBasedRealm/CN=Pieter Geerts,O=beibm%1596214193000%FwlAr5Z9dV1yA4IoH7bJeXLLWhwwIZ10QSP0KzZrPhOwVz/vgWkMLvssEGN3D2+n1A7FcJIsFv6AH0bjtXcJ/JCwBdAs5Vw3Q0i/4jD+p59kZaPx95xwaUIhsKpYe37RgGU/V+LBWNsAIF0Rml5e93eSY/P3cm/yjHCaaMznL4c=
 ```
