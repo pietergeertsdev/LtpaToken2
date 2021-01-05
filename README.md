@@ -1,6 +1,6 @@
 # LtpaToken2
 **Lightweight Third-Party Authentication (LTPA)**, is an authentication technology used in IBM WebSphere and Lotus Domino products. When accessing web servers that use the LTPA technology it is possible for a web user to re-use their login across physical servers.
-AAA
+
 A **Lotus Domino** server or an **IBM WebSphere** server that is configured to use the LTPA authentication will challenge the web user for a name and password. When the user has been authenticated, their browser will have received a session cookie - a cookie that is only available for one browsing session. This cookie contains the LTPA token.
 
 If the user – after having received the LTPA token – accesses a server that is a member of the same authentication realm as the first server, and if the browsing session has not been terminated (the browser was not closed down), then the user is automatically authenticated and will not be challenged for a name and password. Such an environment is also called a Single-Sign-On (SSO) environment.
