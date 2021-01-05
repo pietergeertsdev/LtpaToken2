@@ -93,7 +93,7 @@ function privKeyToRSA(key){
 
 	//compute missing RSA components
 	const bigints = Array(8).fill(null);
-	for (i = 0; i <= 7; ++i) {
+	for (let i = 0; i <= 7; ++i) {
 		if (components[i]!=null)
 			bigints[i]= BigInt('0x'+components[i].toString('hex'))
 	}
