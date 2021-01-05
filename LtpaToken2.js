@@ -93,7 +93,7 @@ function privKeyToRSA(key){
 
 	//compute missing RSA components
 	const bigints = Array(8).fill(null);
-	for (i = 0; i <= 7; ++i) {
+	for (let i = 0; i <= 7; ++i) {
 		if (components[i]!=null)
 			bigints[i]= BigInt('0x'+components[i].toString('hex'))
 	}
@@ -146,14 +146,14 @@ function pubKeyToRSA (key) {
 	const rsa = NodeRSA({b:1024});
 	rsa.setOptions({environment:'node',signingScheme:'sha1'});	
 	rsa.importKey({n:Buffer.from(mod),e:exp,},'components-public');
-	return rsa;
-};
+	return rsa
+}
 
 function signLtpaToken2 (data, rsa) {
 	const hashedBody = Buffer.from(wordToByteArray(CryptoJS.SHA1(data).words));
 	const signature = rsa.sign(hashedBody,'base64')
-	return signature;		
-};
+	return signature	
+}
 
 function encryptLtpaToken2 (data,key) {
 	key = CryptoJS.lib.WordArray.create(key.words.slice(0,4));
@@ -175,8 +175,8 @@ function verifyLtpaToken2 (data, rsa) {
 	const expiration = new Date()<new Date(expire*1);
 	if (expiration&&verification)
 		retValue=true;
-	return retValue;
-};
+	return retValue
+}
 
 const _3DESKey="QeVYdNvQbz7jyqbFu3wmeuyws96KwmvBEu3o6+o138E\=";
 const _PrivateKey="uHUSg2YvtKovgtQLX+SmtH4BPnyBy7cLnNsI+0QaC+KcMVKNuBYjYknyP0n+CCJgkDebdjz5vHqhqlg3abv/P19dzjvJCCHXzIDapYOPBBYcmWZGpMB19b6bsykwjdNbf+xjijRQvOXetf5///ljiHeq/NP58qpS9KXfyXcjXGdEAwFSKAFTG1bj9Cpy6iqWQ9SPFD3kiEhzNu16lSmR4BNtZTpZ0uy8hfYB1u9HB3/sJ0ih2iw7qR8fnhVuKbpIyAtio5sPOHfgayI01vDhEdHNPcZaTxx5Ndf1MXq05Bv2ZEX3JRMtVsLfOvNBnz5PdmPj74CH8Qy7oa4ZX2bDEWF9pBkS7B9rPKDe291/d7M\=";
