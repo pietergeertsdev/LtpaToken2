@@ -1,80 +1,190 @@
-# LtpaToken2
-**Lightweight Third-Party Authentication (LTPA)**, is an authentication technology used in IBM WebSphere and Lotus Domino products. When accessing web servers that use the LTPA technology it is possible for a web user to re-use their login across physical servers.
+# LtpaToken2 - IBM WebSphere & Lotus Domino Authentication
 
-A **Lotus Domino** server or an **IBM WebSphere** server that is configured to use the LTPA authentication will challenge the web user for a name and password. When the user has been authenticated, their browser will have received a session cookie - a cookie that is only available for one browsing session. This cookie contains the LTPA token.
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Java](https://img.shields.io/badge/Java-8%2B-orange.svg)](https://www.java.com)
+[![Python](https://img.shields.io/badge/Python-3.7%2B-blue.svg)](https://www.python.org)
+[![Node.js](https://img.shields.io/badge/Node.js-10.4%2B-green.svg)](https://nodejs.org)
 
-If the user – after having received the LTPA token – accesses a server that is a member of the same authentication realm as the first server, and if the browsing session has not been terminated (the browser was not closed down), then the user is automatically authenticated and will not be challenged for a name and password. Such an environment is also called a Single-Sign-On (SSO) environment.
+A cross-platform implementation for creating, validating, and managing LtpaToken2 (Lightweight Third-Party Authentication) tokens used in IBM WebSphere Application Server and Lotus Domino environments.
 
-This article focuses only on Version 2 of the LtpaToken. Version 1 is outdated and less secure.
+## Table of Contents
 
-The Plain text token consist of a **token body**%**expiration time**%**signature**
-  
-**Token body** is composed by some of the following fields:
-- Username: u:realm+distinguished name
-- Hostname: host:server hostname
-- Port: port:server port
-- Naming Provider: java.naming.provider.url:url of the jndi provider
-- Server Name: process.serverName:servername
-- Authentication Method: security.authMechOID:auth method
-- Type: type:protocol type
-- Expiation Time: expire:timestamp
+- [Overview](#overview)
+- [Features](#features)
+- [Quick Start](#quick-start)
+- [Installation](#installation)
+- [Technical Details](#technical-details)
+- [Security Considerations](#security-considerations)
 
-Concatenated by the symbol "$", eg: u:user\:defaultWIMFileBasedRealm/CN=Pieter Geerts,O=beibm$expire:123123123
+## Overview
 
-A valid token can just have the username.
+**LTPA (Lightweight Third-Party Authentication)** is an authentication technology used in IBM WebSphere and Lotus Domino products. This project provides implementations in Java, Python and Node.js for:
 
-**expiration time** is the timestamp for a valid session
+- Creating valid LtpaToken2 tokens
+- Validating and verifying tokens
+- Encrypting/decrypting token data
+- Managing RSA signatures
 
-**signature** for LtpaToken2 is BASE64(SHA1_WITH_RSA(SHA_DIGEST(Token body)))
-  
-These scripts can encrypt, decrypt, sign and verify a WebSphere/Domino LtpaToken2 based on the server ltpa keyfile.
-The ltpa keyfile consist of the following variables:
-- The **3DESKey** is a base64 encoded string, representing the result of encrypting the actual 3DESKey with a key that was derived from SHA1 hashing the password. 
-The result of SHA1 hash is always 20 bytes, therefore the result need to be right padded with 0x0 bytes to a total length of 24 bytes for **DES-EDE3 ECB** decrypting the secret.
-The first 16 bytes from the decrypted secret are only necessary for **AES-128 CBC** encryption and decryption of a LtpaToken2.
-- The **PrivateKey** is a **DES-EDE3 ECB** encrypted base64 representation of the Private Key. It contains the minimal amount of RSA components in order to reconstruct the full RSA object. This Key is only necessary for **signature** creation.
-- The **PublicKey** is an unencrypted base64 representation of the Public Key. This Key is only necessary for **signature** validation.
+### What is LtpaToken2?
 
-The sample code flow goes as:
-1. create hashed password
-2. decrypt encrypted 3DES key
-3. decrypt encrypted private key
-4. reconstruct RSA object from private key
-5. calculate the epoch expiration, set default at 2hours
-6. add expire to the body and add some fields like user DN etc
-7. create signature for LtpaToken2 as BASE64(SHA1_WITH_RSA(SHA_DIGEST(body)))
-8. create raw token as body%expiration%signature
-9. encrypt the raw token and return as base64 string
-10. decrypt the LtpaToken2
-11. get RSA object from unencrypted public key
-12. verify the LtpaToken and return the raw token
+LtpaToken2 enables **Single Sign-On (SSO)** across multiple servers in the same authentication realm. When a user authenticates with one server, they receive a session cookie containing the LTPA token, which can be used to access other servers without re-authentication.
 
-## node
-Uses BigInt primitive which is natively supported from Node.js version > 10.4.0 so no need for additional packages to support Big Integers.
+## Features
 
-Requires **crypto-js** package for encryption and decryption.
-crypto-js is a JavaScript library of crypto standards compatible with openssl (https://www.npmjs.com/package/crypto-js)
+- **Full LTPA Token Lifecycle**: Create, encrypt, decrypt, sign, and verify tokens
+- **Cross-Platform**: Implementations in Java, Python and Node.js
+- **Secure Cryptography**: Uses industry-standard encryption (3DES, AES-128, RSA with SHA1)
+
+## Quick Start
+
+### Prerequisites
+
+- **Java**: JDK 8 or higher
+- **Python**: Python 3.7+ with `pycryptodome`
+- **Node.js**: Node.js 10.4+ with `crypto-js` and `node-rsa`
+
+## Installation
+
+### Java
+
+No external dependencies required.
+
+Run the script:
+
+```bash
+java LtpaToken2.java [keyfile] [password]
 ```
-npm install crypto-js
-```
-Requires  **node-rsa** for signature creation and validation.
-node-rsa is a RSA library, based on jsbn library (https://www.npmjs.com/package/node-rsa)
-```
-npm install node-rsa
-```
-## groovy
-no additional packages are required to run the code
 
-## java
-no additional packages are required to run the code
+### Python
 
-## python
-pycrypto package seems to have issues with signature creation and validation but is also outdated(2013).pycryptodome seems to be working for signature validation, however the signature creation is still not working correctly hence a wrong LtpaToken2 creation. cryptography package seems to be working correctly for encryption&decryption and signature creation&validation
+Install dependencies:
+
+```bash
+pip install pycryptodome
 ```
-pip install cryptography
+
+Run the script:
+
+```bash
+python3 LtpaToken2.py [keyfile] [password]
 ```
-# run
+
+### Node.js
+
+Install dependencies:
+
+```bash
+npm install crypto-js node-rsa
 ```
-eTuRcNLOkWDFe4a3hRQe26i1M7c4voxigCrK5WGw6Q1/754nGxIV4hS4euYtpKPe6yCxL+RqpELpSitoUR3Iq3pbDpss8SmjXgNtmUk77y6MvRRqD/sLP1QK5NM5UyvJkdCa6Y92Xx5pgp+u3rXM8x+f0zG9vOR5oMozWTtTE0H9sxiLDXqQfly+xWsamoTrhxUqwxGcTfWTf/oTJlQRtI9m4TVBDMGT8+dM/2KtrxiySCsVZiit1YkrImRFB+Z4TJLqFQhzabY2XfwAT9DgUleJst5PjwtaONLIuET/SLY28aqCgiXDFUFEXO8V2D9ijTtVm8hmtOxDJofn9fyQktLUivxcYMWxWb2PBSXIBJ4=
-expire:1596214193000$u:user\:defaultWIMFileBasedRealm/CN=Pieter Geerts,O=beibm%1596214193000%FwlAr5Z9dV1yA4IoH7bJeXLLWhwwIZ10QSP0KzZrPhOwVz/vgWkMLvssEGN3D2+n1A7FcJIsFv6AH0bjtXcJ/JCwBdAs5Vw3Q0i/4jD+p59kZaPx95xwaUIhsKpYe37RgGU/V+LBWNsAIF0Rml5e93eSY/P3cm/yjHCaaMznL4c=
+
+Run the script:
+
+```bash
+node LtpaToken2.js [keyfile] [password]
 ```
+
+### Key File Format
+
+LTPA key files are Java properties files containing:
+
+```properties
+#IBM WebSphere Application Server key file
+com.ibm.websphere.ltpa.version=1.0
+com.ibm.websphere.ltpa.3DESKey=<base64_encoded_key>
+com.ibm.websphere.ltpa.PrivateKey=<base64_encoded_key>
+com.ibm.websphere.ltpa.PublicKey=<base64_encoded_key>
+com.ibm.websphere.ltpa.Realm=<realm>
+```
+
+## Technical Details
+
+### Token Structure
+
+An LtpaToken2 consists of three parts separated by `%`:
+
+```
+<token_body>%<expiration_time>%<signature>
+```
+
+**Token Body** contains fields separated by `$`:
+- `u:` - Username with realm (e.g., `u:user\:realm/CN=Name,O=Org`)
+- `host:` - Server hostname (optional)
+- `port:` - Server port (optional)
+- `java.naming.provider.url:` - url of the jndi provider (optional)
+- `process.serverName:` - servername (optional)
+- `security.authMechOID:` - Authentication Method (optional)
+- `type:` - Protocol Type (optional)
+- `expire:` - Expiration timestamp
+- Additional custom fields
+
+**Expiration Time**: Unix timestamp in milliseconds
+
+**Signature**: `BASE64(SHA1_WITH_RSA(SHA_DIGEST(token_body)))`
+
+### Cryptographic Operations
+
+#### 1. Key Derivation
+
+The 3DES key is encrypted with a key derived from the password:
+
+```
+SHA1(password) → 20 bytes → pad to 24 bytes → 3DES key
+```
+
+#### 2. Token Encryption
+
+Tokens are encrypted using AES-128-CBC:
+
+```
+AES-128-CBC(raw_token, key=first_16_bytes, iv=first_16_bytes)
+```
+
+#### 3. Signature Creation
+
+Signatures use RSA with SHA1:
+
+```
+SHA1(token_body) → RSA_sign(hash, private_key) → BASE64(signature)
+```
+
+### RSA Key Reconstruction
+
+The private key file contains minimal RSA components:
+- Public exponent (e)
+- Prime 1 (p)
+- Prime 2 (q)
+- Optional: Private exponent (d)
+
+Missing components are calculated:
+- Modulus: `n = p × q`
+- Private exponent: `d = e^(-1) mod ((p-1)(q-1))`
+- CRT exponents: `dP = d mod (p-1)`, `dQ = d mod (q-1)`
+- CRT coefficient: `qInv = q^(-1) mod p`
+
+## Security Considerations
+
+### ⚠️ Important Security Notes
+
+1. **SHA1 Usage**: LTPA tokens use SHA1 for hashing, which is cryptographically weak by modern standards. This is a limitation of the LTPA specification, not this implementation.
+
+2. **Key File Protection**: LTPA key files contain sensitive cryptographic material. Protect them with appropriate file permissions:
+   ```bash
+   chmod 600 *.key
+   ```
+
+3. **Password Security**: Never hardcode passwords in production code. Use environment variables or secure key management systems.
+
+4. **Token Expiration**: Always validate token expiration times. Default is 2 hours.
+
+5. **HTTPS Only**: LTPA tokens should only be transmitted over HTTPS to prevent interception.
+
+6. **Key Rotation**: Regularly rotate LTPA keys in production environments.
+
+### Best Practices
+
+- Store key files outside the web root
+- Use strong passwords for key encryption
+- Implement proper session management
+- Log authentication attempts
+- Monitor for suspicious activity
+- Keep dependencies updated

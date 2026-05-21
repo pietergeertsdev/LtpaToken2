@@ -1,3 +1,5 @@
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.security.KeyFactory;
 import java.security.MessageDigest;
@@ -9,10 +11,18 @@ import java.security.spec.RSAPublicKeySpec;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Date;
-
+import java.util.Properties;
 import javax.crypto.Cipher;
 
 public class LtpaToken2 {
+
+	private static Properties loadKeyFile(String keyFilePath) throws IOException {
+		Properties props = new Properties();
+		try (FileInputStream fis = new FileInputStream(keyFilePath)) {
+			props.load(fis);
+		}
+		return props;
+	}
 
 	private static byte[] getSecretKey(String key, String password) throws Exception {
 		MessageDigest md = MessageDigest.getInstance("SHA");
@@ -146,10 +156,30 @@ public class LtpaToken2 {
 
 	public static void main(String[] args) throws Exception {
 
-		String _3DESKey = "QeVYdNvQbz7jyqbFu3wmeuyws96KwmvBEu3o6+o138E";
-		String _PrivateKey = "uHUSg2YvtKovgtQLX+SmtH4BPnyBy7cLnNsI+0QaC+KcMVKNuBYjYknyP0n+CCJgkDebdjz5vHqhqlg3abv/P19dzjvJCCHXzIDapYOPBBYcmWZGpMB19b6bsykwjdNbf+xjijRQvOXetf5///ljiHeq/NP58qpS9KXfyXcjXGdEAwFSKAFTG1bj9Cpy6iqWQ9SPFD3kiEhzNu16lSmR4BNtZTpZ0uy8hfYB1u9HB3/sJ0ih2iw7qR8fnhVuKbpIyAtio5sPOHfgayI01vDhEdHNPcZaTxx5Ndf1MXq05Bv2ZEX3JRMtVsLfOvNBnz5PdmPj74CH8Qy7oa4ZX2bDEWF9pBkS7B9rPKDe291/d7M";
-		String _PublicKey = "ALTw+Sy9dQSv8lQ6JPX/zhqwLtua6yo9mmrC55NAxu7SLXx2Ee+A8OBMTH4+4OIk0pnNAqfR8AKARY4D3fqEJB5z+V/6Zh9Gap3tGT7wmTf0mrtF9EqgLCiVqfBq+0LM+ZfvT6YC6PG1CFVM1kkuuvn2Sc2T+tuiTQSX+zWauR45AQAB";
-		String password = "lotus123";
+		// Allow command line argument to specify key file
+		String keyFilePath = args[0] ;
+		String password = args[1];
+
+		// Load the key file
+		Properties keyProps = loadKeyFile(keyFilePath);
+		
+		// Extract keys from properties file
+		String _3DESKey = keyProps.getProperty("com.ibm.websphere.ltpa.3DESKey");
+		String _PrivateKey = keyProps.getProperty("com.ibm.websphere.ltpa.PrivateKey");
+		String _PublicKey = keyProps.getProperty("com.ibm.websphere.ltpa.PublicKey");
+		String realm = keyProps.getProperty("com.ibm.websphere.ltpa.Realm");
+
+		// Validate that required properties are present
+		if (_3DESKey == null || _PrivateKey == null || _PublicKey == null) {
+			System.err.println("Error: Key file is missing required properties");
+			System.err.println("Required: com.ibm.websphere.ltpa.3DESKey, com.ibm.websphere.ltpa.PrivateKey, com.ibm.websphere.ltpa.PublicKey");
+			System.exit(1);
+		}
+
+		System.out.println("Using key file: " + keyFilePath);
+		if (realm != null) {
+			System.out.println("Realm: " + realm);
+		}
 
 		// decrypt encrypted 3DES key
 		byte[] TrippleDESKey = getSecretKey(_3DESKey, password);
@@ -174,7 +204,7 @@ public class LtpaToken2 {
 
 		// encrypt the raw token and return as base64 string
 		String encToken = encryptLtpaToken2(rawToken, TrippleDESKey);
-		System.out.println(encToken);
+		System.out.println("Token: " + encToken);
 
 		// decrypt the LtpaToken2
 		String rawToken2 = decryptLtpaToken2(encToken, TrippleDESKey);
@@ -184,7 +214,7 @@ public class LtpaToken2 {
 
 		// verify the LtpaToken and return the raw token
 		if (verifyLtpaToken2(rawToken2.split("%"), rsa2)) {
-			System.out.println(rawToken2);
+			System.out.println("RawToken: "+ rawToken2);
 		}
 	}
 }

@@ -1,5 +1,8 @@
 const CryptoJS = require("crypto-js");
 const NodeRSA = require('node-rsa');
+const fs = require('fs');
+const path = require('path');
+
 
 function eGcd (a, b) {
   a = BigInt(a)
@@ -46,6 +49,31 @@ function modInv (a, n) {
   } catch (error) {
     return NaN
   }
+}
+
+function loadKeyFile(keyFilePath) {
+	try {
+		const content = fs.readFileSync(keyFilePath, 'utf8');
+		const props = {};
+		
+		content.split('\n').forEach(line => {
+			line = line.trim();
+			// Skip comments and empty lines
+			if (line.startsWith('#') || !line || !line.includes('=')) {
+				return;
+			}
+			// Split on first '=' only
+			const index = line.indexOf('=');
+			const key = line.substring(0, index);
+			const value = line.substring(index + 1);
+			props[key] = value;
+		});
+		
+		return props;
+	} catch (error) {
+		console.error(`Error reading key file: ${error.message}`);
+		process.exit(1);
+	}
 }
 
 function wordToByteArray(wordArray) {
@@ -178,10 +206,30 @@ function verifyLtpaToken2 (data, rsa) {
 	return retValue
 }
 
-const _3DESKey="QeVYdNvQbz7jyqbFu3wmeuyws96KwmvBEu3o6+o138E\=";
-const _PrivateKey="uHUSg2YvtKovgtQLX+SmtH4BPnyBy7cLnNsI+0QaC+KcMVKNuBYjYknyP0n+CCJgkDebdjz5vHqhqlg3abv/P19dzjvJCCHXzIDapYOPBBYcmWZGpMB19b6bsykwjdNbf+xjijRQvOXetf5///ljiHeq/NP58qpS9KXfyXcjXGdEAwFSKAFTG1bj9Cpy6iqWQ9SPFD3kiEhzNu16lSmR4BNtZTpZ0uy8hfYB1u9HB3/sJ0ih2iw7qR8fnhVuKbpIyAtio5sPOHfgayI01vDhEdHNPcZaTxx5Ndf1MXq05Bv2ZEX3JRMtVsLfOvNBnz5PdmPj74CH8Qy7oa4ZX2bDEWF9pBkS7B9rPKDe291/d7M\=";
-const _PublicKey = "ALTw+Sy9dQSv8lQ6JPX/zhqwLtua6yo9mmrC55NAxu7SLXx2Ee+A8OBMTH4+4OIk0pnNAqfR8AKARY4D3fqEJB5z+V/6Zh9Gap3tGT7wmTf0mrtF9EqgLCiVqfBq+0LM+ZfvT6YC6PG1CFVM1kkuuvn2Sc2T+tuiTQSX+zWauR45AQAB";
-const password="lotus123";
+// Allow command line argument to specify key file
+const keyFilePath = process.argv[2];
+const password = process.argv[3];
+
+// Load the key file
+const keyProps = loadKeyFile(keyFilePath);
+
+// Extract keys from properties file
+const _3DESKey = keyProps['com.ibm.websphere.ltpa.3DESKey'];
+const _PrivateKey = keyProps['com.ibm.websphere.ltpa.PrivateKey'];
+const _PublicKey = keyProps['com.ibm.websphere.ltpa.PublicKey'];
+const realm = keyProps['com.ibm.websphere.ltpa.Realm'];
+
+// Validate that required properties are present
+if (!_3DESKey || !_PrivateKey || !_PublicKey) {
+	console.error('Error: Key file is missing required properties');
+	console.error('Required: com.ibm.websphere.ltpa.3DESKey, com.ibm.websphere.ltpa.PrivateKey, com.ibm.websphere.ltpa.PublicKey');
+	process.exit(1);
+}
+
+console.log(`Using key file: ${keyFilePath}`);
+if (realm) {
+	console.log(`Realm: ${realm}`);
+}
 
 //decrypt encrypted 3DES key
 const TrippleDESKey = getSecretKey(_3DESKey,password)
@@ -206,7 +254,7 @@ const rawToken = [body, expire, signature].join('%');
 
 //encrypt the raw token and return as base64 string
 const encToken = encryptLtpaToken2(rawToken,TrippleDESKey);
-console.log(encToken);
+console.log("Token: " + encToken);
 
 //decrypt the LtpaToken2
 const rawToken2 = decryptLtpaToken2(encToken,TrippleDESKey);
@@ -216,4 +264,4 @@ const rsa2 = pubKeyToRSA(_PublicKey);
 
 //verify the LtpaToken and return the raw token
 if (verifyLtpaToken2(rawToken2.split('%'),rsa2))
-	console.log(rawToken2);
+	console.log("RawToken: " + rawToken2);
